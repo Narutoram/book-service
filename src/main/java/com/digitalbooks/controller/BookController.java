@@ -1,7 +1,9 @@
 package com.digitalbooks.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -33,11 +35,20 @@ public class BookController {
 	}
 	
 
-	@PostMapping("/{authorId}/books/{bookId}/isBlocked")
-	public BookEntity isActive(@PathVariable Long authorId,@PathVariable Long bookId,@RequestParam Boolean isBlocked) {
-		return bookService.isActive(authorId, bookId,isBlocked);
+	@PostMapping("/{authorId}/books/{bookId}/block")
+	public BookEntity blockOrUnblockBooks(@PathVariable Long authorId,@PathVariable Long bookId,@RequestParam Boolean block) {
+		return bookService.blockOrUnblockBooks(authorId, bookId,block);
 	}
 	
+	@GetMapping("/books")
+	public BookEntity fetchBookById(@RequestParam Long bookId) {
+		return bookService.fetchBookById(bookId);
+	}
+	
+	@GetMapping("/books/all")
+	public List<BookDto> fetchAllBoks(@RequestParam Long bookId) {
+		return bookService.fetchAllBoks(bookId);
+	}
 	
 
 }

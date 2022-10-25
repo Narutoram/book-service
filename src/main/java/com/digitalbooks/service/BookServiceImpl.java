@@ -1,7 +1,8 @@
 package com.digitalbooks.service;
 
-import java.util.Date;
+import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,13 +12,15 @@ import com.digitalbooks.entity.BookEntity;
 import com.digitalbooks.exception.DigitalbooksNotFoundException;
 import com.digitalbooks.repository.BookDao;
 
-
 @Service
 @Transactional
 public class BookServiceImpl implements BookService {
-	
+
 	@Autowired
 	private BookDao bookDao;
+
+	@Autowired
+	private ModelMapper modelMapper;
 
 	@Override
 	public BookEntity createBook(BookDto book, Long authorId) {
@@ -28,7 +31,8 @@ public class BookServiceImpl implements BookService {
 		bookEntity.setPublisher(book.getPublisher());
 		bookEntity.setPubDate(book.getPubDate());
 		bookEntity.setContent(book.getContent());
-		bookEntity.setIsActive(book.getIsActive());
+		bookEntity.setIsActive(Boolean.TRUE);
+		bookEntity.setAuthorId(authorId);
 		return bookDao.save(bookEntity);
 	}
 
@@ -45,16 +49,33 @@ public class BookServiceImpl implements BookService {
 		result.setPubDate(book.getPubDate());
 		result.setContent(book.getContent());
 		result.setIsActive(book.getIsActive());
+		result.setAuthorId(authorId);
 		return bookDao.save(result);
-	
+
 	}
 
 	@Override
-	public BookEntity isActive(Long authorId, Long bookId, Boolean isBlocked) {
+	public BookEntity blockOrUnblockBooks(Long authorId, Long bookId, Boolean block) {
+		// authorId check this id is the author type
 		BookEntity book = bookDao.findById(bookId).get();
-		book.setIsActive(isBlocked);
+		book.setIsActive(block);
 		return bookDao.save(book);
 	}
-			
+
+	@Override
+	public BookEntity fetchBookById(Long bookId) {
+		return bookDao.findById(bookId).get();
+	}
+
+	@Override
+	public List<BookDto> fetchAllBoks(Long bookId) {
+		List<BookEntity> books=bookDao.findAll();
+		return entityToDtoConversion(books);
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<BookDto> entityToDtoConversion(List<BookEntity> book) {
+		return (List<BookDto>) modelMapper.map(book, BookDto.class);
+	}
 
 }
